@@ -5,16 +5,13 @@ public class dbConnect {
 	private Connection con;
 	private Statement st;
 	private ResultSet rs;
-
-	public dbConnect() {
-		try {
+	private String db;
+	public dbConnect(String user,String pass, String dataBase) throws Exception 
+	{
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql://10.4.42.185:3306/Sy2017_18_1stsem", "root", "root");
+			con = DriverManager.getConnection("jdbc:mysql://10.4.42.185:3306/"+dataBase, user, pass);
 			st = con.createStatement();
-		} catch (Exception ex) {
-			System.out.println("Error: " + ex);
-
-		}
+			db=dataBase;
 	}
 
 	public void createDatabase() {
@@ -133,6 +130,11 @@ public class dbConnect {
 					+ "' )";
 			st.executeUpdate(query);
 			System.out.println("Records inserted");
+			query = "select MAX(studID) FROM student";
+			rs = st.executeQuery(query);
+			rs.next();
+			query="GRANT SELECT on "+db+".* on "+rs.getString("studID")+"@'%' IDENTIFIED BY 'pass'";
+			st.executeUpdate(query);
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
