@@ -133,7 +133,7 @@ public class dbConnect {
 			query = "select MAX(studID) FROM student";
 			rs = st.executeQuery(query);
 			rs.next();
-			query="GRANT SELECT on "+db+".* on "+rs.getString("studID")+"@'%' IDENTIFIED BY 'pass'";
+			query="GRANT SELECT on "+db+".* on "+rs.getString("studID")+"@'%' IDENTIFIED BY '"+name+"'";
 			st.executeUpdate(query);
 		} catch (Exception ex) {
 			System.out.println(ex);
