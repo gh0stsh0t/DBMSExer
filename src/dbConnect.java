@@ -188,10 +188,10 @@ public class dbConnect {
 					+ "' )";
 			st.executeUpdate(query);
 			System.out.println("Records inserted");
-			query = "select MAX(studID) FROM student";
+			query = "select MAX(studID) as IwantTOdie FROM student";
 			rs = st.executeQuery(query);
 			rs.next();
-			query="GRANT SELECT ON *.* TO '"+rs.getString("studID")+"'@'%' IDENTIFIED BY '"+name+"'";
+			query="GRANT SELECT ON *.* TO '"+rs.getString("IwantTOdie")+"'@'%' IDENTIFIED BY '"+name+"'";
 			st.executeUpdate(query);
 		} catch (Exception ex) {
 			System.out.println(ex);
