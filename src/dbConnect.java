@@ -5,15 +5,47 @@ public class dbConnect {
 	private Connection con;
 	private Statement st;
 	private ResultSet rs;
-	private String db;
-	public dbConnect(String user,String pass, String dataBase) throws Exception 
+	public String user;
+	public String name;
+	public dbConnect(String user1,String pass1, String dataBase) throws Exception 
 	{
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql://10.4.42.185:3306/"+dataBase, user, pass);
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+dataBase, user1, pass1);
 			st = con.createStatement();
-			db=dataBase;
+			user=user1;
+			name=pass1;
 	}
-
+	public dbConnect()
+	{
+			try
+			{
+			Class.forName("com.mysql.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/information_schema", "root","root");
+			st = con.createStatement();
+			}
+			catch (Exception ex)
+			{}
+	}
+	public String[] showDatabases()
+	{
+		try {
+			ResultSet rss=st.executeQuery("SELECT COUNT(*) as kabuhayan from schemata where schema_name LIKE 'sy2%'");
+			rss.next();
+			String [] x=new String[Integer.parseInt(rss.getString("kabuhayan"))];
+			rss = st.executeQuery("select schema_name from schemata where schema_name LIKE 'sy2%'");
+			int z=0;
+			while (rss.next()) {
+				x[z]= rss.getString("schema_name");
+				z++;
+			}
+			return x;
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex);
+			return null;
+		}
+	}
 	public void createDatabase() {
 		try {
 			rs = st.executeQuery("select month(now())");
@@ -38,20 +70,46 @@ public class dbConnect {
 			System.out.println(ex);
 		}
 	}
+	public String [][] getStudentGrades()
+	{
+		try {
+			ResultSet rss;
+			rss = st.executeQuery("SELECT COUNT(*) AS EnrolledS from enrolled WHERE studid=" + user);
+			rss.next();
+			String[][] x = new String[Integer.parseInt(rss.getString("EnrolledS"))][4];
+			String query = "SELECT subjCode,prelim,midterm,final FROM subject RIGHT JOIN ("
+					+ "enrolled JOIN grades ON enrolled.eId=grades.gID) on subject.subjId=enrolled.subjId where enrolled.studId="+user;
+			rs = st.executeQuery(query);
+			int z = 0;
+			while (rs.next()) {
+				x[z][0] = rs.getString("subjCode");
+				x[z][1] = rs.getString("prelim");
+				x[z][2] = rs.getString("midterm");
+				x[z][3] = rs.getString("final");
+				z++;
+			}
+			return x;
+		}
+		catch(Exception ex)
+		{
 
+			System.out.println(ex);
+			return null;
+		}
+	}
 	public void createTable(String dName) {
 		try {
 			String tableMaker = "use " + dName;
 			st.execute(tableMaker);
 			tableMaker = "create table Student ( studId int not null auto_increment, name text, addr text, course text, yrlevel text, Primary key (studID) )";
 			st.execute(tableMaker);
-			tableMaker = "create table grades (gId int not null auto_increment, prelim int, midterm int, final int, primary key (gId))";
-			st.execute(tableMaker);
 			tableMaker = "create table teacher(tId int not null auto_increment, tName text, tDept text, primary key (tID) )";
 			st.execute(tableMaker);
 			tableMaker = "create table subject (subjId int not null auto_increment, subjCode text,sched text, tId int, primary key (subjId), foreign key (tId) references teacher(tId))";
 			st.execute(tableMaker);
 			tableMaker = "create table enrolled( eId int not null auto_increment, subjId int, studId int, primary key (eId), foreign key (subjId) references subject(subjId), foreign key(studId) references student(studId))";
+			st.execute(tableMaker);
+			tableMaker = "create table grades (gId int not null auto_increment, prelim int, midterm int, final int, primary key (gId),foreign key(gId) references enrolled(eId))";
 			st.execute(tableMaker);
 
 		} catch (Exception ex) {
@@ -133,7 +191,7 @@ public class dbConnect {
 			query = "select MAX(studID) FROM student";
 			rs = st.executeQuery(query);
 			rs.next();
-			query="GRANT SELECT on "+db+".* on "+rs.getString("studID")+"@'%' IDENTIFIED BY '"+name+"'";
+			query="GRANT SELECT ON *.* TO '"+rs.getString("studID")+"'@'%' IDENTIFIED BY '"+name+"'";
 			st.executeUpdate(query);
 		} catch (Exception ex) {
 			System.out.println(ex);

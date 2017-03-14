@@ -17,7 +17,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-public class Enrollment {
+public class Enrollment  extends JFrame {
         // <editor-fold defaultstate="collapsed" desc="My Fold">
 	private JFrame frame;
 	private JTextField txtName;
@@ -27,7 +27,7 @@ public class Enrollment {
 	private JTextField txtStud;
 	private JTextField txtSubj;
 	private JTable table;
-	public dbConnect dbtau=new dbConnect();
+	public dbConnect dbtau;
 	private JScrollPane scrollPane;
 	private JTable tblSubj;
 	private JScrollPane scrollPane_1;
@@ -70,6 +70,12 @@ public class Enrollment {
 	 */
 	public Enrollment() {
 		initialize();
+		frame.setVisible(true);
+	}
+	public Enrollment(dbConnect x) {
+		initialize();
+		dbtau=x;
+		frame.setVisible(true);
 	}
 
 	/**
